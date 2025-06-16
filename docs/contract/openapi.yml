@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  title: Mini Blogging Platform API
+  version: 1.0.0
+  description: OpenAPI spec for the Mini Blogging Platform with JWT-based auth
+servers:
+  - url: http://localhost:3000
+    description: Local server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email_id:
+          type: string
+        created_date:
+          type: string
+          format: date-time
+        updated_date:
+          type: string
+          format: date-time
+    Post:
+      type: object
+      properties:
+        post_id:
+          type: integer
+        description:
+          type: string
+        user_info:
+          $ref: "#/components/schemas/User"
+        created_date:
+          type: string
+          format: date-time
+        updated_date:
+          type: string
+          format: date-time
+paths:
+  /sign-up:
+    post:
+      summary: Sign up a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [first_name, last_name, email_id, password]
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email_id:
+                  type: string
+                password:
+                  type: string
+      responses:
+        201:
+          description: Account created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Account created successfully. You can now sign in."
+        400:
+          description: Validation error
+          content:
+            application/json:
+              examples:
+                missingFields:
+                  value:
+                    success: false
+                    message: "All fields (first_name, last_name, email_id, password) are required."
+                passwordValidation:
+                  value:
+                    success: false
+                    message: "Password must be at least 10 characters long and contain at least one uppercase and one lowercase letter."
+        409:
+          description: Email already registered
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Email already registered. Please log in or use a different email."
+  /sign-in:
+    post:
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [email_id, password]
+              type: object
+              properties:
+                email_id:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Login successful."
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjg0ZDZlYjM4ODk3M2Q5YzAyMDBhMzdkIiwiZW1haWwiOiJlZHdhcmQuc3RvbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NTAwNTg3OTAsImV4cCI6MTc1MDA2NTk5MH0.wwJhttJpYVK8m-I0AzYIu8Nwo1IhcSjvv_7efjhRx8Q"
+                user_id: "5890_5088"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Both email_id and password are required."
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Invalid email or password."
+  /create-post:
+    post:
+      summary: Create a new post
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [description]
+              type: object
+              properties:
+                description:
+                  type: string
+      responses:
+        201:
+          description: Post created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Post created successfully"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Post description is required"
+  /posts:
+    get:
+      summary: Get all posts
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        500:
+          description: Server error
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Unable to fetch posts at the moment"
+  /user-posts:
+    get:
+      summary: Get posts by current user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of user's posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        500:
+          description: Server error
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Unable to fetch posts at the moment"
+  /update-post/{post_id}:
+    patch:
+      summary: Update a post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [description]
+              type: object
+              properties:
+                description:
+                  type: string
+      responses:
+        200:
+          description: Post updated successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Post updated successfully"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              examples:
+                missingFields:
+                  value:
+                    success: false
+                    message: "Both post_id and description are required"
+        404:
+          description: Post not found
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Post not found"
+  /post/{post_id}:
+    delete:
+      summary: Delete a post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Post deleted successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Post deleted successfully"
+        404:
+          description: Post not found
+          content:
+            application/json:
+              example:
+                success: false
+                message: "Post not found"
+  /users:
+    get:
+      summary: Get all users
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+  /user:
+    get:
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
