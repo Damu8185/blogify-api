@@ -24,10 +24,10 @@ components:
           type: string
         email_id:
           type: string
-        created_date:
+        created_at:
           type: string
           format: date-time
-        updated_date:
+        updated_at:
           type: string
           format: date-time
     Post:
@@ -35,14 +35,16 @@ components:
       properties:
         post_id:
           type: integer
+        post_title:
+          type: string
         description:
           type: string
         user_info:
           $ref: "#/components/schemas/User"
-        created_date:
+        created_at:
           type: string
           format: date-time
-        updated_date:
+        updated_at:
           type: string
           format: date-time
 paths:
@@ -142,10 +144,12 @@ paths:
         content:
           application/json:
             schema:
-              required: [description]
+              required: [post_title, description]
               type: object
               properties:
                 description:
+                  type: string
+                post_title:
                   type: string
       responses:
         201:
@@ -220,10 +224,12 @@ paths:
         content:
           application/json:
             schema:
-              required: [description]
+              required: [post_title, description]
               type: object
               properties:
                 description:
+                  type: string
+                post_title:
                   type: string
       responses:
         200:

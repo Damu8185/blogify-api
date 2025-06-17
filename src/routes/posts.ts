@@ -14,17 +14,18 @@ postRouter.post(
   verifyToken,
   async (req: Request, res: Response, next) => {
     try {
-      const { description } = req.body;
+      const { post_title, description } = req.body;
       const user_id = (req.user as any).user_id;
 
       // Validate input
-      if (!description) {
-        throw new ApiError(400, "Post description is required");
+      if (!description || !post_title) {
+        throw new ApiError(400, "Both post title and description are required");
       }
 
       const newPost = new Post({
         post_id: generate4DigitId(),
         user_id,
+        post_title,
         description,
       });
 
@@ -42,7 +43,7 @@ postRouter.get("/posts", verifyToken, async (_req: Request, res: Response) => {
   try {
     const posts = await Post.find()
       .populate("user_id", "user_id first_name last_name -_id")
-      .sort({ created_date: -1 });
+      .sort({ created_at: -1 });
 
     const modifiedPosts = modifiedPostsResponse(posts);
     res.json(modifiedPosts);
@@ -61,7 +62,7 @@ postRouter.get(
 
       const posts = await Post.find({ user_id })
         .populate("user_id", "user_id first_name last_name -_id")
-        .sort({ created_date: -1 });
+        .sort({ created_at: -1 });
       const modifiedPosts = modifiedPostsResponse(posts);
 
       res.json(modifiedPosts);
@@ -77,16 +78,20 @@ postRouter.patch(
   async (req: Request, res: Response) => {
     try {
       const { post_id } = req.params;
-      const { description } = req.body;
+      const { post_title, description } = req.body;
 
-      if (!post_id || !description) {
-        throw new ApiError(400, "Both post_id and description are required");
+      if (!post_id || !description || !post_title) {
+        throw new ApiError(
+          400,
+          "All fields (post_id, post_title, description, password) are required"
+        );
       }
 
       const updatedPost = await Post.findOneAndUpdate(
         { post_id: req.params.post_id },
         {
           $set: {
+            post_title: req.body.post_title,
             description: req.body.description,
             updated_date: new Date(),
           },

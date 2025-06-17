@@ -4,24 +4,20 @@ import ApiError from "../errors";
 
 export function errorHandler(
   err: any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   req: Request,
   res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ): void {
   const statusCode = err instanceof ApiError ? err.statusCode : 500;
   const message =
     err instanceof ApiError ? err.message : "Something went wrong";
-  const details =
-    err instanceof ApiError && err.details ? err.details : undefined;
+  const details = err instanceof ApiError && err.details;
 
-  const response: any = {
+  res.status(statusCode).json({
     success: false,
     message,
-  };
-
-  if (details) {
-    response.details = details;
-  }
-
-  res.status(statusCode).json(response);
+    ...(details && { details }),
+  });
 }
