@@ -16,7 +16,7 @@ components:
     User:
       type: object
       properties:
-        user_id:
+        _id:
           type: string
         first_name:
           type: string
@@ -33,8 +33,8 @@ components:
     Post:
       type: object
       properties:
-        post_id:
-          type: integer
+        _id:
+          type: string
         post_title:
           type: string
         description:
@@ -119,7 +119,7 @@ paths:
                 success: true
                 message: "Login successful."
                 token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjg0ZDZlYjM4ODk3M2Q5YzAyMDBhMzdkIiwiZW1haWwiOiJlZHdhcmQuc3RvbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NTAwNTg3OTAsImV4cCI6MTc1MDA2NTk5MH0.wwJhttJpYVK8m-I0AzYIu8Nwo1IhcSjvv_7efjhRx8Q"
-                user_id: "5890_5088"
+                user_id: "5890508856343826"
         400:
           description: Validation error
           content:
@@ -139,6 +139,13 @@ paths:
       summary: Create a new post
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -165,12 +172,19 @@ paths:
             application/json:
               example:
                 success: false
-                message: "Post description is required"
+                message: "Both post title and description are required"
   /posts:
     get:
       summary: Get all posts
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: List of posts
@@ -187,11 +201,23 @@ paths:
               example:
                 success: false
                 message: "Unable to fetch posts at the moment"
-  /user-posts:
+  /user-posts/{user_id}:
     get:
-      summary: Get posts by current user
+      summary: Get posts of user
       security:
         - bearerAuth: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: List of user's posts
@@ -216,6 +242,12 @@ paths:
       parameters:
         - in: path
           name: post_id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
           required: true
           schema:
             type: integer
@@ -257,12 +289,18 @@ paths:
                 message: "Post not found"
   /post/{post_id}:
     delete:
-      summary: Delete a post
+      summary: Delete post
       security:
         - bearerAuth: []
       parameters:
         - in: path
           name: post_id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
           required: true
           schema:
             type: integer
@@ -286,6 +324,13 @@ paths:
       summary: Get all users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: List of users
@@ -295,11 +340,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
-  /user:
+  /user/{user_id}:
     get:
-      summary: Get current user profile
+      summary: Get user profile
       security:
         - bearerAuth: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: Authorization
+          description: JWT token in the format,`Bearer <token>`
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: Current user

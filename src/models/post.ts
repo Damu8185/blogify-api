@@ -2,7 +2,6 @@
 import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema({
-  post_id: { type: Number, required: true },
   post_title: { type: String, required: true },
   description: { type: String, required: true },
   user_id: { type: String, required: true, ref: "User" },
@@ -19,7 +18,6 @@ const postSchema = new mongoose.Schema({
 
 postSchema.set("toJSON", {
   transform: (_doc, ret) => {
-    delete ret._id;
     delete ret.__v;
   },
 });

@@ -2,7 +2,6 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  user_id: { type: String, required: true },
   first_name: { type: String, required: true },
   last_name: { type: String, required: true },
   email_id: {
@@ -25,7 +24,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.set("toJSON", {
   transform: (_doc, ret) => {
-    delete ret._id;
     delete ret.__v;
     delete ret.password; // optionally hide password too
   },
